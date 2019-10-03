@@ -73,7 +73,6 @@ class MongoAdapter implements Adapter {
     // NOTE: the payload for Session model may contain client_id as keys, make sure you do not use
     //   dots (".") in your client_id value charset.
     async upsert(_id: string, payload: AdapterPayload, expiresIn: number) {
-        console.log('MongoAdapter#upsert', _id, payload, expiresIn);
         let expiresAt;
 
         if (expiresIn) {
@@ -89,7 +88,7 @@ class MongoAdapter implements Adapter {
 
     async find(_id: string) {
 
-        console.log('MongoAdapter#find', _id);
+        // console.log('MongoAdapter#find', _id);
 
         const result = await this.coll().find(
             { _id },
@@ -97,7 +96,7 @@ class MongoAdapter implements Adapter {
         ).limit(1).next();
 
         if (!result) return undefined;
-        console.log('MongoAdapter#find result', result.payload);
+        // console.log('MongoAdapter#find result', result.payload);
         return result.payload;
     }
 
@@ -139,7 +138,7 @@ class MongoAdapter implements Adapter {
     coll(name?: string) {
         // return this.constructor.coll(name || this.name);
         const value = MongoAdapter.coll(name || this.name);
-        console.log('MongoAdapter#coll', name || this.name, value.namespace);
+        // console.log('MongoAdapter#coll', name || this.name, value.namespace);
         return value;
     }
 

@@ -207,7 +207,7 @@ export class UserModel {
     static async findByLogin(login: string) {
         try {
             logger.debug('findByLogin', login);
-            const users = await UserSchema.find({ email: 'test@test.com' })
+            const users = await UserSchema.find({ email: login });
             return users[0];
         } catch (e) {
             throw new Error(e);
