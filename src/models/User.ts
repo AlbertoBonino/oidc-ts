@@ -208,7 +208,18 @@ export class UserModel {
         try {
             logger.debug('findByLogin', login);
             const users = await UserSchema.find({ email: login });
-            return users[0];
+            if (!users || users.length !== 1) throw new Error('User not found');
+            const user = users[0];
+            const account: Account = {
+                accountId: user.id,
+                claims: (use: string, scope: string, claims: { [key: string]: ClaimsParameterMember | null; }, rejected: string[]) => {
+                    const accountClaims: AccountClaims = {
+                        sub: user.id
+                    }
+                    return accountClaims;
+                }
+            }
+            return account;
         } catch (e) {
             throw new Error(e);
         }
