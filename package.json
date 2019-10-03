@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "debug": "node --nolazy --debug-brk=5858 src/server.ts",
+    "dev:debug": "nodemon --inspect src/server.ts",
     "build": "tsc -p ."
   },
   "license": "MIT",
