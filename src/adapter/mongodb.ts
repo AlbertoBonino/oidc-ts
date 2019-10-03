@@ -97,7 +97,7 @@ class MongoAdapter implements Adapter {
         ).limit(1).next();
 
         if (!result) return undefined;
-        // console.log('MongoAdapter#find result', result.payload);
+        console.log('MongoAdapter#find result', result.payload);
         return result.payload;
     }
 
