@@ -88,15 +88,12 @@ class MongoAdapter implements Adapter {
 
     async find(_id: string) {
 
-        // console.log('MongoAdapter#find', _id);
-
         const result = await this.coll().find(
             { _id },
             this.findOneOptions
         ).limit(1).next();
 
         if (!result) return undefined;
-        // console.log('MongoAdapter#find result', result.payload);
         return result.payload;
     }
 
@@ -136,10 +133,7 @@ class MongoAdapter implements Adapter {
     }
 
     coll(name?: string) {
-        // return this.constructor.coll(name || this.name);
-        const value = MongoAdapter.coll(name || this.name);
-        // console.log('MongoAdapter#coll', name || this.name, value.namespace);
-        return value;
+        return MongoAdapter.coll(name || this.name);
     }
 
     static coll(name: string) {

@@ -69,11 +69,11 @@ schema.pre('save', function (next) {
 });
 
 schema.virtual('accountId').get(function (this: { _id: string }) {
-    return this._id;
+    return this._id.toString();
 });
 
 schema.virtual('id').get(function (this: { _id: string }) {
-    return this._id;
+    return this._id.toString();
 });
 
 schema.methods.toJSON = function () {
@@ -87,7 +87,7 @@ schema.methods.toJSON = function () {
 // what your OP supports, oidc-provider will cherry-pick the requested ones automatically
 schema.methods.claims = function () {
     return Object.assign({}, this._doc, {
-        sub: this._id,
+        sub: this._id.toString(),
     });
 }
 

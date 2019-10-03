@@ -49,12 +49,17 @@ const configuration: Configuration = {
     },
     features: {
         devInteractions: { enabled: false }, // defaults to true
-
         deviceFlow: { enabled: true }, // defaults to false
         introspection: { enabled: true }, // defaults to false
-        revocation: { enabled: true }, // defaults to false
+        revocation: { enabled: true }, // defaults to false<
     },
     findAccount: UserModel.findAccount,
+    issueRefreshToken: async (ctx, client, code) => {
+        return client.grantTypeAllowed('refresh_token') && (code.scopes.has('offline_access') || code.scopes.has('openid') || code.scopes.has('token'));
+    },
+    formats: {
+        AccessToken: 'jwt',
+    },
     jwks: {
         keys: [
             {
