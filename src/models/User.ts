@@ -19,6 +19,17 @@ export interface IUser extends Document {
     password: string;
     roles: [ObjectID];
     logins: [string];
+    federation: {
+        id: String,
+        token: String,
+        tokenExpire: Date,
+        rtToken: String,
+        rtTokenExpire: Date
+    };
+    isFederated: {
+        type: Boolean,
+        default: false
+    }
 }
 
 var schema = new Schema({
@@ -44,8 +55,18 @@ var schema = new Schema({
     },
     password: {
         type: String,
-        require: true,
         minlength: 6
+    },
+    federation: {
+        id: String,
+        token: String,
+        tokenExpire: Date,
+        rtToken: String,
+        rtTokenExpire: Date
+    },
+    isFederated: {
+        type: Boolean,
+        default: false
     },
     roles: [ObjectID],
     logins: [String]
@@ -54,6 +75,12 @@ var schema = new Schema({
 schema.pre('save', function (next) {
     var user: any = this;
 
+    if (!user.isFederated && (!user.password || user.password.length < 6)) {
+        throw new Error('Password field is missing');
+    } else if (user.isFederated) {
+        next();
+        return;
+    }
     if (user.isModified('password')) {
         bcrypt.genSalt(10, (err: Error, salt: string) => {
             bcrypt.hash(user.password, salt, (err: Error, hash: string) => {
@@ -159,6 +186,23 @@ export class UserModel {
         }
     }
 
+    static async createByFederation(provider: string, data: any) {
+        try {
+            const userInstance = new UserSchema({ email: data.email });
+            userInstance.federation = {
+                id: `${provider}.${userInstance.id}`,
+                token: data.token,
+                tokenExpire: new Date(),
+                rtToken: data.refresh_token,
+                rtTokenExpire: new Date()
+            }
+            userInstance.save();
+            return userInstance.toJSON();
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
     static async findByID(ctx: any, id: string) {
         try {
             const user = await UserSchema.findById(id);
@@ -173,15 +217,7 @@ export class UserModel {
             logger.debug('findAccount', sub);
             const user = await UserSchema.findById(sub);
             if (!user) throw new Error('User not found');
-            const account: Account = {
-                accountId: user.id,
-                claims: (use: string, scope: string, claims: { [key: string]: ClaimsParameterMember | null; }, rejected: string[]) => {
-                    const accountClaims: AccountClaims = {
-                        sub: user.id
-                    }
-                    return accountClaims;
-                }
-            }
+            const account = UserModel.getAccount(user);
             return account;
         } catch (e) {
             throw new Error(e);
@@ -204,25 +240,45 @@ export class UserModel {
         }
     }
 
+    static async findByFederated(provider: string, claims: any) {
+        const id = `${provider}.${claims.sub}`;
+        // if (!logins.get(id)) {
+        //     logins.set(id, new Account(id, claims));
+        // }
+        // return logins.get(id);
+    }
+
     static async findByLogin(login: string) {
         try {
             logger.debug('findByLogin', login);
             const users = await UserSchema.find({ email: login });
             if (!users || users.length !== 1) throw new Error('User not found');
             const user = users[0];
-            const account: Account = {
-                accountId: user.id,
-                claims: (use: string, scope: string, claims: { [key: string]: ClaimsParameterMember | null; }, rejected: string[]) => {
-                    const accountClaims: AccountClaims = {
-                        sub: user.id
-                    }
-                    return accountClaims;
-                }
-            }
+            const account = UserModel.getAccount(user);
             return account;
         } catch (e) {
             throw new Error(e);
         }
+    }
+
+    private static getAccount(user: IUser) {
+        const account: Account = {
+            accountId: user.id,
+            claims: (use: string, scope: string, claims: { [key: string]: ClaimsParameterMember | null; }, rejected: string[]) => {
+                const claimsKeys = Object.keys(claims).filter(key => !rejected.includes(key));
+                const accountClaims: AccountClaims = {
+                    sub: user.id
+                }
+                claimsKeys.map(key => {
+                    const keyObject = claims[key];
+                    if (keyObject) {
+                        accountClaims[key] = keyObject.value || keyObject.values;
+                    }
+                });
+                return accountClaims;
+            }
+        }
+        return account;
     }
 
 }

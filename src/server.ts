@@ -14,6 +14,7 @@ import MongoAdapter from './adapter/mongodb';
 import MongooseHelper from './db/mongoose.helper';
 import { UserSchema, UserModel } from './models/User';
 import interactionsRoutes from './routes/interactionsRoutes';
+import passwordGrant from './config/passwordGrant';
 
 import oidcConfig from './config/oidc-config';
 
@@ -41,6 +42,7 @@ let server: Server;
 (async () => {
 
     const provider = new Provider(ISSUER, { adapter: MongoAdapter, ...oidcConfig });
+    passwordGrant(provider);
 
     if (process.env.NODE_ENV === 'production') {
 

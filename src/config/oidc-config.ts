@@ -20,13 +20,26 @@ const configuration: Configuration = {
         {
             client_id: 'test',
             client_secret: 'testsecret',
-            grant_types: ['refresh_token', 'authorization_code', 'implicit'],
+            grant_types: ['refresh_token', 'authorization_code', 'implicit', 'password'],
             redirect_uris: ['https://lvh:8080/cb'],
             response_types: [
                 "code id_token", "code", "id_token"
             ],
             // token_endpoint_auth_method: "client_secret_basic"
-            token_endpoint_auth_method: "client_secret_post"
+            token_endpoint_auth_method: "client_secret_post",
+            key: 'test'
+        },
+        {
+            client_id: 'testpw',
+            client_secret: 'testsecretpw',
+            grant_types: ['password', 'implicit'],
+            redirect_uris: ['https://lvh:8080/cb'],
+            response_types: [
+                "id_token"
+            ],
+            // token_endpoint_auth_method: "client_secret_basic"
+            token_endpoint_auth_method: "client_secret_post",
+            key: 'test'
         }
     ],
     interactions: {
