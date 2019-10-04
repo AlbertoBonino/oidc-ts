@@ -9,7 +9,7 @@ import * as querystring from 'querystring';
 import { inspect } from 'util';
 import { isEmpty } from 'lodash';
 import { urlencoded, Application, Request, Response, NextFunction } from 'express'; // eslint-disable-line import/no-unresolved
-import { InteractionResults, errors as oidcErrors } from 'oidc-provider';
+import { InteractionResults, errors as oidcErrors, Provider } from 'oidc-provider';
 
 import { UserModel } from '../models/User';
 
@@ -27,7 +27,7 @@ const debug = (obj: any) => querystring.stringify(Object.entries(obj).reduce((ac
     encodeURIComponent(value) { return keys.has(value) ? `<strong>${value}</strong>` : value; },
 });
 
-const routes: any = (app: Application, provider: any) => {
+const routes: any = (app: Application, provider: Provider) => {
 
     // const { constructor: { errors: { SessionNotFound } } } = provider;
 
@@ -68,7 +68,7 @@ const routes: any = (app: Application, provider: any) => {
                         return provider.interactionFinished(req, res, { select_account: {} }, { mergeWithLastSubmission: false });
                     }
 
-                    const account = await provider.User.findAccount(undefined, session.accountId);
+                    const account = await UserModel.findAccount(undefined, session.accountId);
                     const { email } = await account.claims('prompt', 'email', { email: null }, []);
 
                     return res.render('select_account', {
@@ -97,6 +97,7 @@ const routes: any = (app: Application, provider: any) => {
                             params: debug(params),
                             prompt: debug(prompt),
                         },
+                        google: true
                     });
                 }
                 case 'consent': {
@@ -186,7 +187,7 @@ const routes: any = (app: Application, provider: any) => {
             consent.replace = false;
 
             const result = { consent };
-            await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
+            await provider.interactionFinished(req, res, result.consent, { mergeWithLastSubmission: true });
         } catch (err) {
             next(err);
         }
