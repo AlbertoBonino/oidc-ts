@@ -19,7 +19,7 @@
     "mongoose": "^5.7.5",
     "oidc-provider": "^6.12.2",
     "pino": "^5.13.4",
-    "validator": "^11.1.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
