@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-pino-logger": "^4.0.0",
     "helmet": "^3.21.1",
     "lodash": "^4.17.15",
